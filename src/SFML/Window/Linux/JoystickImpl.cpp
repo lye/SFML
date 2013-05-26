@@ -39,17 +39,24 @@ namespace priv
 ////////////////////////////////////////////////////////////
 bool JoystickImpl::isConnected(unsigned int index)
 {
+#if defined(SFML_SYSTEM_FREEBSD)
+	return false;
+#else
     char name[32];
     std::sprintf(name, "/dev/input/js%u", index);
 
     struct stat info; 
     return stat(name, &info) == 0; 
+#endif
 }
 
 
 ////////////////////////////////////////////////////////////
 bool JoystickImpl::open(unsigned int index)
 {
+#if defined(SFML_SYSTEM_FREEBSD)
+	return false;
+#else
     char name[32];
     std::sprintf(name, "/dev/input/js%u", index);
 
@@ -71,19 +78,29 @@ bool JoystickImpl::open(unsigned int index)
     {
         return false;
     }
+#endif
 }
 
 
 ////////////////////////////////////////////////////////////
 void JoystickImpl::close()
 {
+#if defined(SFML_SYSTEM_FREEBSD)
+#else
     ::close(m_file);
+#endif
 }
 
 
 ////////////////////////////////////////////////////////////
 JoystickCaps JoystickImpl::getCapabilities() const
 {
+#if defined(SFML_SYSTEM_FREEBSD)
+	JoystickCaps caps;
+	caps.buttonCount = 0;
+	return caps;
+
+#else
     JoystickCaps caps;
 
     // Get the number of buttons
@@ -115,12 +132,15 @@ JoystickCaps JoystickImpl::getCapabilities() const
     }
 
     return caps;
+#endif
 }
 
 
 ////////////////////////////////////////////////////////////
 JoystickState JoystickImpl::JoystickImpl::update()
 {
+#if defined(SFML_SYSTEM_FREEBSD)
+#else
     // pop events from the joystick file
     js_event joyState;
     while (read(m_file, &joyState, sizeof(joyState)) > 0)
@@ -162,6 +182,7 @@ JoystickState JoystickImpl::JoystickImpl::update()
     m_state.connected = (errno == EAGAIN);
 
     return m_state;
+#endif
 }
 
 } // namespace priv
