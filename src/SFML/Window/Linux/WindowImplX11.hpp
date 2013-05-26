@@ -34,6 +34,9 @@
 #include <X11/Xlib.h>
 #include <set>
 
+#if defined(SFML_SYSTEM_FREEBSD)
+#include <libgen.h>
+#endif
 
 namespace sf
 {
